@@ -7,11 +7,11 @@ CFLAGS = -Wall
 LDFLAGS = 
 
 # Fichiers
-SRCS = ./src/main.c ./src/interpreter.c
+SRCS = ./src/main.c ./src/interpreter.c ./src/utils.c
 INCLUDES = 
 
 OBJS = $(SRCS:.c=.o)
-DEPS = ./src/interpreter.h
+DEPS = ./src/interpreter.h ./src/utils.h
 
 # Commandes cross-platform (Win/Linux)
 ifeq ($(OS),Windows_NT)
