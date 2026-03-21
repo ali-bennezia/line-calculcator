@@ -6,8 +6,14 @@
 #define MAX_LINE_LENGTH 256
 #define MAX_LINE_TOKENS 10
 
+#include "tokens.h"
+
+#include "utils.h"
+
 int interpret_line( char *buff )
 {
+    unsigned int result = 0;
+
     char *tokens[ MAX_LINE_TOKENS ] = { 0 };
     size_t tok_count = 0;
 
@@ -22,13 +28,29 @@ int interpret_line( char *buff )
         tok = strtok( NULL, " \n\r\t" );
     }
 
-    printf( "Tokens:\n" );
-    for ( size_t i = 0; i < tok_count; ++i )
-    {
-        printf( "%s\n", tokens[ i ] );
+    if ( tok_count <= 0 ){
+        result = 0;
+        goto cleanup;
     }
 
-    return ( tok_count >= MAX_LINE_TOKENS );
+    if ( tok_count == MAX_LINE_TOKENS && tok != NULL ) {
+        fprintf( stderr, "Error: exceeded maximum amount of tokens in a line.\n" );
+        result = 1;
+        goto cleanup;
+    }
+
+    int (*exec_function)(char**, unsigned int) = NULL;
+    int match_r = match_token( tokens, tok_count, &exec_function );
+    if ( match_r || exec_function == NULL ) {
+        result = 1;
+        goto cleanup;
+    }
+
+    result = exec_function( tokens + 1, ( unsigned int )( tok_count - 1 ) );
+
+    cleanup:
+    free_tokens( tokens, tok_count );
+    return result;
 }
 
 int read_file( const char *path )
